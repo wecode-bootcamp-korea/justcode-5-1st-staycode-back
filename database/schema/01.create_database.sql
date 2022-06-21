@@ -116,3 +116,5 @@ ALTER TABLE `event` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation
 ALTER TABLE `features` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on DELETE CASCADE;
 
 ALTER TABLE `amenities` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on DELETE CASCADE;
+
+ALTER TABLE `promotion` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`) on DELETE CASCADE;
