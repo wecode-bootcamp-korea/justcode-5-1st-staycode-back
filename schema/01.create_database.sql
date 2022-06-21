@@ -101,18 +101,18 @@ CREATE TABLE `reservation` (
   `updated_at` timestamp
 );
 
-ALTER TABLE `accomodation_images` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`);
+ALTER TABLE `accomodation_images` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`) on DELETE CASCADE;
 
-ALTER TABLE `room` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`);
+ALTER TABLE `room` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`) on DELETE CASCADE;
 
-ALTER TABLE `room_images` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`);
+ALTER TABLE `room_images` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on DELETE CASCADE;
 
-ALTER TABLE `reservation` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`);
+ALTER TABLE `reservation` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on DELETE CASCADE;
 
-ALTER TABLE `reservation` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `reservation` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) on DELETE CASCADE;
 
-ALTER TABLE `event` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`);
+ALTER TABLE `event` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`) on DELETE CASCADE;
 
-ALTER TABLE `features` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`);
+ALTER TABLE `features` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on DELETE CASCADE;
 
-ALTER TABLE `amenities` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`);
+ALTER TABLE `amenities` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on DELETE CASCADE;
