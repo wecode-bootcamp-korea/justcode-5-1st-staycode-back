@@ -7,8 +7,136 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model accomodation {
+  id                  Int                   @id @default(autoincrement())
+  name                String                @db.VarChar(50)
+  content             String                @db.Text
+  location            String                @db.VarChar(100)
+  city                String                @db.VarChar(50)
+  stay_type           String                @db.VarChar(50)
+  theme               String                @db.VarChar(50)
+  created_at          DateTime?             @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  accomodation_images accomodation_images[]
+  event               event[]
+  room                room[]
+}
+
+model accomodation_images {
+  id              Int           @id @default(autoincrement())
+  accomodation_id Int?
+  image_url       String        @db.VarChar(300)
+  created_at      DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  accomodation    accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "accomodation_images_ibfk_1")
+
+  @@index([accomodation_id], map: "accomodation_id")
+}
+
+model amenities {
+  id         Int       @id @default(autoincrement())
+  room_id    Int?
+  name       String    @db.VarChar(50)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  room       room?     @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "amenities_ibfk_1")
+
+  @@index([room_id], map: "room_id")
+}
+
+model event {
+  id                     Int           @id @default(autoincrement())
+  accomodation_id        Int?
+  title                  String        @db.VarChar(50)
+  content                String        @db.Text
+  event_detail_image_url String?       @db.VarChar(300)
+  event_start            DateTime      @db.Timestamp(0)
+  event_end              DateTime      @db.Timestamp(0)
+  created_at             DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at             DateTime?     @db.Timestamp(0)
+  accomodation           accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_ibfk_1")
+
+  @@index([accomodation_id], map: "accomodation_id")
+}
+
+model features {
+  id         Int       @id @default(autoincrement())
+  room_id    Int?
+  name       String    @db.VarChar(50)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  room       room?     @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "features_ibfk_1")
+
+  @@index([room_id], map: "room_id")
+}
+
+model promotion {
+  id                   Int       @id @default(autoincrement())
+  accomodation_id      Int?
+  title                String    @db.VarChar(50)
+  content              String    @db.Text
+  pro_detail_image_url String?   @db.VarChar(300)
+  pro_start            DateTime  @db.Timestamp(0)
+  pro_end              DateTime  @db.Timestamp(0)
+  created_at           DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+}
+
+model reservation {
+  id                Int       @id @default(autoincrement())
+  room_id           Int?
+  user_id           Int?
+  reservation_start DateTime  @db.Timestamp(0)
+  reservation_end   DateTime  @db.Timestamp(0)
+  price             Int
+  guest             Int
+  special_requests  String?   @db.VarChar(200)
+  created_at        DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  room              room?     @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reservation_ibfk_1")
+  users             users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reservation_ibfk_2")
+
+  @@index([room_id], map: "room_id")
+  @@index([user_id], map: "user_id")
+}
+
+model room {
+  id              Int           @id @default(autoincrement())
+  accomodation_id Int?
+  name            String        @db.VarChar(50)
+  content         String        @db.Text
+  price           Int
+  max_guest       Int
+  size            Float?        @db.Float
+  check_in_time   String        @db.VarChar(50)
+  check_out_time  String        @db.VarChar(50)
+  created_at      DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at      DateTime?     @db.Timestamp(0)
+  accomodation    accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "room_ibfk_1")
+  amenities       amenities[]
+  features        features[]
+  reservation     reservation[]
+  room_images     room_images[]
+
+  @@index([accomodation_id], map: "accomodation_id")
+}
+
+model room_images {
+  id         Int       @id @default(autoincrement())
+  room_id    Int?
+  image_url  String    @db.VarChar(300)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  room       room?     @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "room_images_ibfk_1")
+
+  @@index([room_id], map: "room_id")
+}
+
+model users {
+  id          Int           @id @default(autoincrement())
+  email       String?       @unique(map: "email") @db.VarChar(50)
+  name        String        @db.VarChar(50)
+  password    String        @db.VarChar(200)
+  phone       String        @db.VarChar(50)
+  created_at  DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at  DateTime?     @db.Timestamp(0)
+  reservation reservation[]
 }
