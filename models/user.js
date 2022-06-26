@@ -1,7 +1,29 @@
-const prismaClient = require('./prisma-client');
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+const express = require('express');
 
-function createUser() {}
+async function getUserByEmail(email){
+const [user] = await prisma.$queryRaw`
+SELECT
+     id, 
+    email, 
+    password
+FROM users
+WHERE email = ${email};
+`;
 
-function readUserByEmail(email) {}
+return user;
+}
 
-module.exports = { createUser, readUserByEmail };
+async function createUser(createUserDTO){
+    const { email, password,name,phone} = createUserDTO;
+
+    await prisma.$queryRaw`
+    INSERT INTO
+        users(email, password,name,phone)
+    VALUES 
+        (${email}, ${password},${name},${phone});
+    `;
+};
+
+module.exports = { getUserByEmail, createUser};
