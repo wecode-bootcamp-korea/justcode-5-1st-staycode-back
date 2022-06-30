@@ -21,7 +21,7 @@ async function getRoomService(id) {
 
       return room;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       return null;
     }
   } else {
@@ -33,7 +33,7 @@ async function getRoomService(id) {
               `;
       return room;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       return null;
     }
   }
