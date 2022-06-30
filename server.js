@@ -7,6 +7,9 @@ const cors = require('cors');
 const routes = require('./routes');
 const { PrismaClient } = require('@prisma/client');
 
+const accomodationRouter = require('./routes/accomodation');
+const roomRouter = require('./routes/room');
+
 const prisma = new PrismaClient();
 
 const app = express();
@@ -16,6 +19,15 @@ app.use(routes);
 
 app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
+});
+
+//reservation get
+
+app.get('/reservation', async (req, res) => {
+  const checkINData =
+    await prisma.$queryRaw`SELECT reservation_start FROM reservation;`;
+  res.send(JSON.stringify({ checkINData }));
+  console.log(checkINData);
 });
 
 //reservation post
@@ -61,6 +73,9 @@ app.post('/reservation', async (req, res) => {
     return res.status(err.statusCode).json({ message: err.message });
   }
 });
+
+app.use(accomodationRouter);
+app.use(roomRouter);
 
 const server = http.createServer(app);
 const PORT = process.env.PORT || 10010;
