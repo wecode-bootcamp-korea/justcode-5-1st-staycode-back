@@ -2,6 +2,35 @@ const { Prisma } = require('@prisma/client');
 const prismaClient = require('./prisma-client');
 
 async function readStay(condition, stay, priceRange, cnt) {
+  let stay_type_list = [];
+  let theme_type_list = [];
+  if (condition.stay_type) {
+    stay_type_list = condition.stay_type.split(',');
+  }
+  if (condition.theme) {
+    theme_type_list = condition.theme.split(',');
+  }
+
+  const list =
+    await prismaClient.$queryRawUnsafe`SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
+  JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
+  ON accomodation.id = ig.accomodation_id ${
+    condition.stay_type
+      ? Prisma.sql`AND stay_type IN (${Prisma.join(stay_type_list)})`
+      : Prisma.empty
+  } ${
+      condition.theme
+        ? Prisma.sql`AND theme IN (${Prisma.join(theme_type_list)})`
+        : Prisma.empty
+    }
+  ${availableRoom(stay, priceRange, cnt)} HAVING 
+    ${condition.city ? Prisma.sql`city = ${condition.city} AND` : Prisma.empty}
+     1`;
+  return list;
+}
+
+/*
+async function readStay(condition, stay, priceRange, cnt) {
   const list =
     await prismaClient.$queryRawUnsafe`SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
   JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
@@ -10,7 +39,7 @@ async function readStay(condition, stay, priceRange, cnt) {
     priceRange,
     cnt
   )} HAVING ${
-      condition.saty_type
+      condition.stay_type
         ? Prisma.sql`stay_type = ${condition.stay_type} AND`
         : Prisma.empty
     }
@@ -22,6 +51,7 @@ async function readStay(condition, stay, priceRange, cnt) {
     } 1`;
   return list;
 }
+*/
 
 function availableRoom(stay, priceRange, cnt) {
   if (!stay.check_in || !stay.check_out) {
