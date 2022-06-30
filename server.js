@@ -9,6 +9,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const accomodationRouter = require('./routes/accomodation');
 const roomRouter = require('./routes/room');
+const { timeStamp } = require('console');
 
 const prisma = new PrismaClient();
 
@@ -23,7 +24,6 @@ app.use(roomRouter);
 app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
-
 
 //reservation get
 
@@ -49,6 +49,8 @@ app.post('/reservation', async (req, res) => {
     email,
   } = req.body;
   try {
+    console.log(req.body);
+
     const findUserId =
       await prisma.$queryRaw`SELECT id FROM users WHERE email=${email}`;
 
