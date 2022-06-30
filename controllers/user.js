@@ -20,5 +20,4 @@ const loginController = async (req, res)=>{
    res.json({token});
 }
 
-
 module.exports = { signupController, loginController };
