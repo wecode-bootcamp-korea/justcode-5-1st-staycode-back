@@ -7,7 +7,7 @@ const { createError } = require('../module/createError');
 
 const salt = bcrypt.genSaltSync();
 
-app.use(express.json());
+
 async function signup(email, password,name,phone){
     if(password.length <8) {
         const error = createError('PASSWORD_TOO_SHORT',400);
@@ -43,9 +43,9 @@ async function login(email, password){
 
     const user = await getUserByEmail(email)
     if (!user){
-        const error = createError('NOT EXISTING_USER',409);
-       throw error;         
-        
+         const error = createError('NOT EXISTING_USER',409);
+        throw error;         
+       
     }
     
     if(bcrypt.compareSync(password, user.password)){

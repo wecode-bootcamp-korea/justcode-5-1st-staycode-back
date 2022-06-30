@@ -12,12 +12,19 @@ const signupController = async(req, res)=>{
 
 
 
-const loginController = async (req, res)=>{
+const loginController = async (req, res, next)=>{
     const { email, password} = req.body;
-
+  
+  try{
   const token = await login(email, password);
-
    res.json({token});
+  } catch(err){
+      const error = new Error("에러가 났습니다.")
+      error.statusCode = 400;
+      next(error);
+  }
+
+   
 }
 
 module.exports = { signupController, loginController };
