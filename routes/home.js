@@ -1,9 +1,9 @@
 const express = require('express');
-const { findstayController } = require('../controllers/findstay');
+const { homeController } = require('../controllers/home');
 
 const router = express.Router();
 
-router.get('/findstay', findstayController);
+router.get('/', homeController);
 //router.post('/login', loginController);
 
 module.exports = router;
