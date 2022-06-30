@@ -7,6 +7,9 @@ const cors = require('cors');
 const routes = require('./routes');
 const { PrismaClient } = require('@prisma/client');
 
+const accomodationRouter = require('./routes/accomodation');
+const roomRouter = require('./routes/room');
+
 const prisma = new PrismaClient();
 
 const app = express();
@@ -14,15 +17,14 @@ app.use(cors());
 app.use(express.json());
 app.use(routes);
 
+app.use(accomodationRouter);
+app.use(roomRouter);
+
 app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
 
-app.use((err, req, res, next) => {
-  if(String(err.message).startsWith("user")){
-    res.status(err.statusCode).json({ message: err.message});
-    return;
-  }
+
 
   if(err){
     res.status(err.statusCode || 500).json({ message: "err"});

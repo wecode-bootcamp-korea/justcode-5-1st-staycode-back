@@ -1,22 +1,266 @@
-INSERT INTO room_images (room_id, image_url)
-VALUES
-(44,"https://mblogthumb-phinf.pstatic.net/MjAyMTExMDRfMTY3/MDAxNjM2MDI3MDUyNDgw.aq9YAxQuSvUi3ju8DZn-N7vUv_O3LGVO2M9ArOZW-Bkg.gq5urTQynQ3YRaS5N9VlBfkLVdKhwjaar5JFyTJaOsUg.JPEG.namepsj/DSC08817%25EF%25BC%258D01.jpeg?type=w800"),
-(44,"https://mblogthumb-phinf.pstatic.net/MjAyMTExMDRfMjI5/MDAxNjM2MDI3MDYxNTY1.3oXW2lFNnjPco-MD8Hk33ENNF3OceS_S49O-zIh-ffQg.tqtMskfMGJQ346H1IQxK_7ggo6lz3hZ3cRybPnXhcDAg.JPEG.namepsj/DSC08821%EF%BC%8D01.jpeg?type=w800"),
-(45,"https://mblogthumb-phinf.pstatic.net/MjAyMTA5MDdfMjUy/MDAxNjMxMDI0MjA5MDY1.1XjDucjpSb3aTi8her_ZSrWPP8bB4huImvXD4TeYwrgg.L7g5y9VMk9ZNnhz5dimJjfnSEOjJTDTp6FojMypQZpgg.JPEG.cicumuns/20210906_143759.jpg?type=w800"),
-(45,"https://mblogthumb-phinf.pstatic.net/MjAyMTA5MDdfNzkg/MDAxNjMxMDI0MzAzNjQw.4t5c75OGrEZ_zValhdTGgCm2eT0WYlvuL58rHRQfResg.aC0r16kCvUSb5A0HEBB6Lhop7iwncPydILAs8AZbNSMg.JPEG.cicumuns/20210906_143944.jpg?type=w800"),
-(46,"https://t1.daumcdn.net/thumb/R1280x0/?fname=http://t1.daumcdn.net/brunch/service/user/wlQ/image/OrYiihG9ujWfaTODXy--E5Qc3n4.jpg"),
-(46,"https://t1.daumcdn.net/thumb/R1280x0/?fname=http://t1.daumcdn.net/brunch/service/user/wlQ/image/plkDM1imeDi_Vh43jG7-zqHd3js.jpg"),
-(47,"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7DjoCKX_SINlXMFrkMN0R5K4zVVyAMeM6aib3poqRlg&s"),
-(47,"https://www.princehotels.com/shinjuku/wp-content/uploads/sites/13/2019/06/deluxroom1-1.jpg"),
-(48,"https://yaimg.yanolja.com/v5/2021/07/01/14/1280/60ddcbd6d2f004.46628550.jpg"),
-(48,"https://yaimg.yanolja.com/v5/2022/02/22/16/1280/62150d2bb4e311.03971518.jpg"),
-(49,"https://www.edenparadisehotel.com/data/file/Accommodation/1971028435_uvqOBP91_d0cca83d26a792903b95b6c616c8eb336f71a6d7.jpg"),
-(49,"https://www.edenparadisehotel.com/data/file/Accommodation/1971028435_qEYbOvrM_4a33124aec62fed18d233bc33ff8c6d63a555da7.jpg"),
-(50,"https://www.lottehotel.com/content/dam/lotte-hotel/lotte/ulsan/accommodation/standard/190725-2000-roo-LTUL.jpg.thumb.768.768.jpg"),
-(50,"https://www.lottehotel.com/content/dam/lotte-hotel/lotte/seoul/accommodation/main-tower/standard/deluxe/181107-8-2000-roo-LTSE.jpg.thumb.768.768.jpg"),
-(51,"https://www.lottehotel.com/content/dam/lotte-hotel/lotte/busan/accommodation/standard/deluxe-room/180829-5-2000-acc-busan-hotel.jpg.thumb.1920.1920.jpg"),
-(51,"https://blog.kakaocdn.net/dn/nMWHe/btq5oUHQG7m/ybm3T4GmQ4AOg0V2A3qAw1/img.jpg"),
-(52,"https://www.lottehotel.com/content/dam/lotte-hotel/lotte/jeju/accommodation/standard/superior/180804-1-2000-acc-jeju-hotel.jpg.thumb.768.768.jpg"),
-(52,"https://www.lottehotel.com/content/dam/lotte-hotel/lotte/jeju/accommodation/standard/superior/180804-1-2000-acc-jeju-hotel.jpg.thumb.768.768.jpg"),
-(53,"https://contents.hiltonhotels.jp/ko/h/selhi/hotel_stay_20191209104918_main_sp.jpg"),
-(53,"https://contents.hiltonhotels.jp/ko/h/selhi/hotel_stay_20191209105001_main_sp.jpg");
+SELECT p.id, p.name AS productName, cg.category, JSON_ARRAYAGG(JSON_OBJECT("id", pa.id, "color", JSON_OBJECT("id", pa.color_id, "color", pa.color), "images", pa.images)) AS colorImage, p.sales_count
+FROM (
+    SELECT pc.id, product_id, pc.color_id, pi.images, c.color
+    FROM product_color pc
+    JOIN color c on pc.color_id = c.id
+    JOIN (
+        SELECT product_color_id AS id, JSON_ARRAYAGG(JSON_OBJECT("id",product_images.id, "url", product_images.url)) AS images
+        FROM product_images WHERE MOD(id,2) = 1
+        GROUP BY product_color_id
+        ) pi on pi.id = pc.id
+    ) pa
+JOIN products p ON p.id = pa.product_id
+JOIN category cg ON cg.id = p.category_id
+GROUP BY product_id, sales_count
+ORDER BY sales_count DESC limit 20;
+
+
+SELECT
+      accomodation.*,  JSON_ARRAYAGG(
+        JSON_OBJECT(
+        ‘id’, accomodation_images.id,
+        ‘image_url’, accomodation_images.image_url,
+        )
+        )
+      FROM accomodation
+      JOIN accomodation_images
+      ON accomodation.id = accomodation_images.accomodation_id
+      WHERE accomodation.id=${id}
+      GROUP BY accomodation_id;
+
+
+
+    SELECT
+      accomodation.*, JSON_ARRAYAGG(
+        JSON_OBJECT(
+        "id", accomodation_images.id,
+        "image_url", accomodation_images.image_url,
+        )
+        )
+      FROM accomodation 
+      JOIN accomodation_images ON accomodation_images.accomodation_id = accomodation.id
+      WHERE accomodation.id=${id};
+
+
+
+SELECT
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+              'id', accomodation_images.id,
+              'image_url', accomodation_images.image_url
+          )
+      ) AS images
+      FROM accomodation_images
+      WHERE accomodation_id = ${id}
+      GROUP BY accomodation_id
+
+
+
+
+
+SELECT 
+      accomodation.*
+        ,  JSON_ARRAYAGG(
+        JSON_OBJECT(
+        "id", accomodation_images.id,
+        "image_url", accomodation_images.image_url
+        )
+        ) AS images
+        ,  JSON_ARRAYAGG(
+        JSON_OBJECT(
+        "id", room.id,
+        "image_url", room.name
+        )
+        ) AS rooms
+      FROM accomodation
+      JOIN accomodation_images ON accomodation.id = accomodation_images.accomodation_id
+      JOIN room ON accomodation.id = room.accomodation_id
+      WHERE accomodation.id=${id}
+      GROUP BY accomodation.id
+
+
+
+
+ SELECT 
+       accomodation.*
+        ,  JSON_ARRAYAGG(
+        JSON_OBJECT(
+        "id", accomodation_images.id,
+        "image_url", accomodation_images.image_url
+        )
+        ) AS images
+        ,  JSON_ARRAYAGG(
+        JSON_OBJECT(
+        "id", room.id,
+        "image_url", room.name
+        )
+        ) AS rooms
+      FROM accomodation_images, room
+      JOIN accomodation ON accomodation.id = room.accomodation_id
+      WHERE room.accomodation_id=${id} and accomodation_images.accomodation_id=${id}
+      GROUP BY accomodation.id
+
+
+
+
+
+
+
+
+
+
+WITH A AS(
+    SELECT 
+        accomodation.*
+        , JSON_ARRAYAGG(
+            JSON_OBJECT(
+                "id", 
+                accomodation_images.id,
+                "image_url", 
+                accomodation_images.image_url
+            )
+        ) AS images
+    FROM accomodation
+    JOIN accomodation_images ON accomodation.id = accomodation_images.accomodation_id
+    WHERE accomodation.id=${id}
+    GROUP BY accomodation.id
+)
+
+,B AS(
+    SELECT 
+        accomodation.*
+        , JSON_ARRAYAGG(
+            JSON_OBJECT(
+                "id", 
+                room.id,
+                "image_url", 
+                room.name
+            )
+        ) AS rooms
+    FROM accomodation
+    JOIN room ON accomodation.id = room.accomodation_id
+    WHERE accomodation.id=${id}
+    GROUP BY accomodation.id
+)
+
+
+SELECT *
+FROM A
+JOIN B ON A.id = B.id
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT 
+      accomodation.*
+        ,  JSON_ARRAYAGG(
+        JSON_OBJECT(
+        "id", room.id,
+        "name", room.name
+        )
+        ) AS rooms
+      FROM room
+      JOIN accomodation ON accomodation.id = room.accomodation_id
+      WHERE accomodation.id=${id}
+      GROUP BY accomodation.id
+
+
+
+
+
+
+
+SELECT 
+      room.*
+        ,  JSON_ARRAYAGG(
+        JSON_OBJECT(
+        "id", room_images.id,
+        "image_url", room_images.image_url
+        )
+        ) AS images
+      FROM room
+      JOIN room_images ON room.id = room_images.room_id
+      WHERE room.id=${id}
+      GROUP BY room.id
+
+
+
+
+
+
+
+
+WITH A AS(
+    SELECT 
+        accomodation.*
+        , JSON_ARRAYAGG(
+            JSON_OBJECT(
+                "id", 
+                accomodation_images.id,
+                "image_url", 
+                accomodation_images.image_url
+            )
+        ) AS images
+    FROM accomodation
+    JOIN accomodation_images ON accomodation.id = accomodation_images.accomodation_id
+    WHERE accomodation.id=${id}
+    GROUP BY accomodation.id
+)
+
+,B AS(
+    SELECT 
+        accomodation.*
+        , JSON_ARRAYAGG(
+            JSON_OBJECT(
+                "id", 
+                C.id,
+                "name", 
+                C.name,
+                "content",
+                C.content,
+                "price",
+                C.price,
+                "max_guest",
+                C.max_guest,
+                "size",
+                C.size,
+                "check_in_time",
+                C.check_in_time,
+                "check_out_time",
+                C.check_out_time,
+                "created_at",
+                C.created_at,
+                "images",
+                C.images
+            )
+        ) AS rooms
+    FROM (
+        SELECT 
+    room.*
+    ,  JSON_ARRAYAGG(
+    JSON_OBJECT(
+    "id", room_images.id,
+    "image_url", room_images.image_url
+    )
+    ) AS images
+    FROM room
+    JOIN room_images ON room.id = room_images.room_id
+    GROUP BY room.id
+    ) C
+    JOIN accomodation ON accomodation.id = C.accomodation_id
+    WHERE accomodation.id=${id}
+    GROUP BY accomodation.id
+)
+
+
+SELECT *
+FROM A
+JOIN B ON A.id = B.id
