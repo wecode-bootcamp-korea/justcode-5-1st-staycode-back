@@ -1,9 +1,24 @@
-function signupController(req, res) {
-  res.status(500).json({ message: 'not implemented' }); // 구현이 되면 삭제합니다.
-}
+const { signup } = require('../services/user');
+const { login } = require('../services/user');
+const signupController = async (req, res) => {
+  const { email, password, name, phone } = req.body;
 
-function loginController(req, res) {
-  res.status(500).json({ message: 'not implemented' }); // 구현이 되면 삭제합니다.
-}
+  await signup(email, password, name, phone);
+
+  res.status(201).json({ message: 'SUCCESS' });
+};
+
+const loginController = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    const token = await login(email, password);
+    res.json({ token });
+  } catch (err) {
+    const error = new Error('에러가 났습니다.');
+    error.statusCode = 400;
+    next(error);
+  }
+};
 
 module.exports = { signupController, loginController };

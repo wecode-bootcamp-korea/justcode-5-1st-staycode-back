@@ -81,7 +81,7 @@ async function getAccomodationService(id) {
       // )
       return accomodation;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       return null;
     }
   } else {
@@ -93,7 +93,8 @@ async function getAccomodationService(id) {
           `;
       return accomodations;
     } catch (err) {
-      console.log(err);
+
+      console.error(err);
       return null;
     }
   }

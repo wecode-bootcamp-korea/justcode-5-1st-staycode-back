@@ -23,7 +23,7 @@ CREATE TABLE `accomodation` (
 CREATE TABLE `accomodation_images` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `accomodation_id` int,
-  `image_url` varchar(300) NOT NULL,
+  `image_url` varchar(500) NOT NULL,
   `created_at` timestamp DEFAULT (now())
 );
 
@@ -84,7 +84,7 @@ CREATE TABLE `amenities` (
 CREATE TABLE `room_images` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `room_id` int,
-  `image_url` varchar(300) NOT NULL,
+  `image_url` varchar(500) NOT NULL,
   `created_at` timestamp DEFAULT (now())
 );
 
@@ -118,3 +118,5 @@ ALTER TABLE `features` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on D
 ALTER TABLE `amenities` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) on DELETE CASCADE;
 
 ALTER TABLE `promotion` ADD FOREIGN KEY (`accomodation_id`) REFERENCES `accomodation` (`id`) on DELETE CASCADE;
+
+

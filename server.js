@@ -17,9 +17,13 @@ app.use(cors());
 app.use(express.json());
 app.use(routes);
 
+app.use(accomodationRouter);
+app.use(roomRouter);
+
 app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
+
 
 //reservation get
 
