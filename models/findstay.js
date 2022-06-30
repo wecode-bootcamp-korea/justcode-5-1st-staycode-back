@@ -29,30 +29,6 @@ async function readStay(condition, stay, priceRange, cnt) {
   return list;
 }
 
-/*
-async function readStay(condition, stay, priceRange, cnt) {
-  const list =
-    await prismaClient.$queryRawUnsafe`SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
-  JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
-  ON accomodation.id = ig.accomodation_id ${availableRoom(
-    stay,
-    priceRange,
-    cnt
-  )} HAVING ${
-      condition.stay_type
-        ? Prisma.sql`stay_type = ${condition.stay_type} AND`
-        : Prisma.empty
-    }
-    ${condition.city ? Prisma.sql`city = ${condition.city} AND` : Prisma.empty}
-    ${
-      condition.theme
-        ? Prisma.sql`theme = ${condition.theme} AND`
-        : Prisma.empty
-    } 1`;
-  return list;
-}
-*/
-
 function availableRoom(stay, priceRange, cnt) {
   if (!stay.check_in || !stay.check_out) {
     stay = {
@@ -71,13 +47,21 @@ function availableRoom(stay, priceRange, cnt) {
   }
   return Prisma.sql`JOIN (select room.id, room.accomodation_id, room.price, room.max_guest from room 
   left join reservation on room.id = reservation.room_id 
-  where (reservation.reservation_start not between ${stay.check_in} and ${stay.check_out}
-  and reservation.reservation_end not between ${stay.check_in} and ${stay.check_out}
+  where ( reservation.reservation_end < ${stay.check_in} or reservation.reservation_start > ${stay.check_out} 
   or reservation.reservation_start is null and reservation.reservation_end is null)
   and room.price between ${priceRange.min_price} and ${priceRange.max_price}
   and room.max_guest >= ${cnt})ar on accomodation.id = ar.accomodation_id
   group by accomodation.id`;
 }
+
+/*return Prisma.sql`JOIN (select room.id, room.accomodation_id, room.price, room.max_guest from room 
+  left join reservation on room.id = reservation.room_id 
+  where (reservation.reservation_start not between ${stay.check_in} and ${stay.check_out}
+  and reservation.reservation_end not between ${stay.check_in} and ${stay.check_out}
+  or reservation.reservation_start is null and reservation.reservation_end is null)
+  and room.price between ${priceRange.min_price} and ${priceRange.max_price}
+  and room.max_guest >= ${cnt})ar on accomodation.id = ar.accomodation_id
+  group by accomodation.id`;*/
 
 /*function filterByHaving(condition) {
   const filter = [];
