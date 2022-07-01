@@ -14,8 +14,18 @@ app.use(cors());
 app.use(express.json());
 app.use(routes);
 
-app.get('/ping', (req, res) => {
-  res.json({ message: 'pong' });
+app.get('/findstay', async (req, res) => {
+  try {
+    const list =
+      await prisma.$queryRaw`SELECT accomodation.id, accomodation.name, city, stay_type, images, prices FROM accomodation
+      JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
+      ON accomodation.id = ig.accomodation_id
+      JOIN (SELECT accomodation_id, JSON_ARRAYAGG(price) AS prices FROM room GROUP BY accomodation_id)rm
+      ON accomodation.id = rm.accomodation_id;`;
+    return res.json({ list });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 const server = http.createServer(app);
