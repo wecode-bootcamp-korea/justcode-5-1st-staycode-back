@@ -25,11 +25,14 @@ app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
 
-//reservation get
 
-app.get('/reservation', async (req, res) => {
+//reservation get 캘린더에서 checkin 안되는날 찾기 위해서
+
+app.get('/reservation/:id', async (req, res) => {
+  const id = req.params.id;
+
   const checkINData =
-    await prisma.$queryRaw`SELECT reservation_start FROM reservation;`;
+    await prisma.$queryRaw`SELECT reservation_start FROM reservation WHERE room_id=${id};`;
   res.send(JSON.stringify({ checkINData }));
   console.log(checkINData);
 });
