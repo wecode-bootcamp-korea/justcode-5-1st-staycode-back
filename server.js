@@ -9,6 +9,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const accomodationRouter = require('./routes/accomodation');
 const roomRouter = require('./routes/room');
+const { timeStamp } = require('console');
 
 const prisma = new PrismaClient();
 
@@ -24,10 +25,12 @@ app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
 
+
 //reservation get 캘린더에서 checkin 안되는날 찾기 위해서
 
 app.get('/reservation/:id', async (req, res) => {
   const id = req.params.id;
+
   const checkINData =
     await prisma.$queryRaw`SELECT reservation_start FROM reservation WHERE room_id=${id};`;
   res.send(JSON.stringify({ checkINData }));
@@ -49,6 +52,8 @@ app.post('/reservation', async (req, res) => {
     email,
   } = req.body;
   try {
+    console.log(req.body);
+
     const findUserId =
       await prisma.$queryRaw`SELECT id FROM users WHERE email=${email}`;
 

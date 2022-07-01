@@ -93,7 +93,6 @@ async function getAccomodationService(id) {
           `;
       return accomodations;
     } catch (err) {
-
       console.error(err);
       return null;
     }
