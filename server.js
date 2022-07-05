@@ -7,6 +7,10 @@ const cors = require('cors');
 const routes = require('./routes');
 const { PrismaClient } = require('@prisma/client');
 
+const accomodationRouter = require('./routes/accomodation');
+const roomRouter = require('./routes/room');
+const { timeStamp } = require('console');
+
 const prisma = new PrismaClient();
 
 const app = express();
@@ -14,19 +18,72 @@ app.use(cors());
 app.use(express.json());
 app.use(routes);
 
-app.get('/findstay', async (req, res) => {
+app.use(accomodationRouter);
+app.use(roomRouter);
+
+app.get('/ping', (req, res) => {
+  res.json({ message: 'pong' });
+});
+
+//reservation get 캘린더에서 checkin 안되는날 찾기 위해서
+
+app.get('/reservation/:id', async (req, res) => {
+  const id = req.params.id;
+
+  const checkINData =
+    await prisma.$queryRaw`SELECT reservation_start FROM reservation WHERE room_id=${id};`;
+  res.send(JSON.stringify({ checkINData }));
+  console.log(checkINData);
+});
+
+//reservation post
+
+app.post('/reservation', async (req, res) => {
+  const {
+    room_id,
+    reservation_start,
+    reservation_end,
+    price,
+    guest,
+    special_requests,
+    booker,
+    phone,
+    email,
+  } = req.body;
   try {
-    const list =
-      await prisma.$queryRaw`SELECT accomodation.id, accomodation.name, city, stay_type, images, prices FROM accomodation
-      JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
-      ON accomodation.id = ig.accomodation_id
-      JOIN (SELECT accomodation_id, JSON_ARRAYAGG(price) AS prices FROM room GROUP BY accomodation_id)rm
-      ON accomodation.id = rm.accomodation_id;`;
-    return res.json({ list });
+    console.log(req.body);
+
+    const findUserId =
+      await prisma.$queryRaw`SELECT id FROM users WHERE email=${email}`;
+
+    const createdReservation = await prisma.$queryRaw`
+    INSERT INTO reservation(room_id,user_id,
+    reservation_start,
+    reservation_end,
+    price,
+    guest,
+    special_requests,
+    booker,
+    phone,
+    email
+    ) VALUES (${room_id},${findUserId[0].id},
+    ${reservation_start},
+    ${reservation_end},
+    ${price},
+    ${guest},
+    ${special_requests},
+    ${booker},
+    ${phone},
+    ${email});`;
+    return res.status(201).json({ message: 'RESERVATION_SUCCESS' });
   } catch (err) {
     console.log(err);
+    return res.status(err.statusCode).json({ message: err.message });
   }
 });
+
+app.use(accomodationRouter);
+app.use(roomRouter);
 
 const server = http.createServer(app);
 const PORT = process.env.PORT || 10010;
