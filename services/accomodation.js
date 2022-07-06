@@ -1,8 +1,7 @@
-const { readAccomodationById } = require('../models/accomodation');
+const prisma = require('../models/prisma-client');
 
 async function getAccomodationService(id) {
   if (id) {
-    console.log(id);
     try {
       const accomodation = await prisma.$queryRaw`
         WITH A AS(
@@ -95,9 +94,7 @@ async function getAccomodationService(id) {
       console.error(err);
       return null;
     }
-
   }
-  return accomodationList;
 }
 
 module.exports = { getAccomodationService };
