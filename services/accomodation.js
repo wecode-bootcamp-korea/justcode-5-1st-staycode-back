@@ -82,7 +82,7 @@ async function getAccomodationService(id) {
       return accomodation;
     } catch (err) {
       console.error(err);
-      return null;
+      return res.status(err.statusCode).json({ message: err.message });
     }
   } else {
     try {
@@ -94,7 +94,7 @@ async function getAccomodationService(id) {
       return accomodations;
     } catch (err) {
       console.error(err);
-      return null;
+      return res.status(err.statusCode).json({ message: err.message });
     }
   }
 }
