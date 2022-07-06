@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { readAccomodationById } = require('../models/accomodation');
 
 async function getAccomodationService(id) {
   if (id) {
@@ -96,7 +95,9 @@ async function getAccomodationService(id) {
       console.error(err);
       return null;
     }
+
   }
+  return accomodationList;
 }
 
 module.exports = { getAccomodationService };

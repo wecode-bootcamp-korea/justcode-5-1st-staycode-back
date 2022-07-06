@@ -1,7 +1,7 @@
 const { Prisma } = require('@prisma/client');
 const prismaClient = require('./prisma-client');
 
-async function readStay(condition, stay, priceRange, cnt) {
+async function readStay(condition, stay, priceRange, cnt, page) {
   let stay_type_list = [];
   let theme_type_list = [];
   if (condition.stay_type) {
@@ -10,23 +10,27 @@ async function readStay(condition, stay, priceRange, cnt) {
   if (condition.theme) {
     theme_type_list = condition.theme.split(',');
   }
-
-  const list =
-    await prismaClient.$queryRawUnsafe`SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
+  const list = Prisma.sql`(SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
   JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
   ON accomodation.id = ig.accomodation_id ${
     condition.stay_type
       ? Prisma.sql`AND stay_type IN (${Prisma.join(stay_type_list)})`
       : Prisma.empty
   } ${
-      condition.theme
-        ? Prisma.sql`AND theme IN (${Prisma.join(theme_type_list)})`
-        : Prisma.empty
-    }
+    condition.theme
+      ? Prisma.sql`AND theme IN (${Prisma.join(theme_type_list)})`
+      : Prisma.empty
+  }
   ${availableRoom(stay, priceRange, cnt)} HAVING 
     ${condition.city ? Prisma.sql`city = ${condition.city} AND` : Prisma.empty}
-     1`;
-  return list;
+     1)fl`;
+  console.log(page);
+  const page_list =
+    await prismaClient.$queryRawUnsafe`SELECT * FROM ${list} LIMIT 4 OFFSET ${
+      (page - 1) * 4
+    }`;
+  console.log(page_list);
+  return page_list;
 }
 
 function availableRoom(stay, priceRange, cnt) {
@@ -75,7 +79,7 @@ function availableRoom(stay, priceRange, cnt) {
     filter.push(`theme = '${condition.theme}'`);
   }
   if (filter.length) {
-    return `having ${filter.join(' and ')}`;
+    return Prisma.query`having ${filter.join(' and ')}`;
   } else {
     return Prisma.empty;
   }
