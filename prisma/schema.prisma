@@ -29,7 +29,6 @@ model accomodation_images {
   image_url       String        @db.VarChar(500)
   created_at      DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
   accomodation    accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "accomodation_images_ibfk_1")
-
   @@index([accomodation_id], map: "accomodation_id")
 }
 
@@ -40,7 +39,6 @@ model amenities {
   created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
   room       room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "amenities_ibfk_1")
-
   @@index([room_id], map: "room_id")
 }
 
@@ -55,7 +53,6 @@ model event {
   created_at             DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
   updated_at             DateTime?     @db.Timestamp(0)
   accomodation           accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_ibfk_1")
-
   @@index([accomodation_id], map: "accomodation_id")
 }
 
@@ -66,7 +63,6 @@ model features {
   created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
   room       room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "features_ibfk_1")
-
   @@index([room_id], map: "room_id")
 }
 
@@ -81,7 +77,6 @@ model promotion {
   created_at           DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
   updated_at           DateTime?     @db.Timestamp(0)
   accomodation         accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "promotion_ibfk_1")
-
   @@index([accomodation_id], map: "accomodation_id")
 }
 
@@ -101,7 +96,6 @@ model reservation {
   email             String    @db.VarChar(200)
   room              room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "reservation_ibfk_1")
   users             users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "reservation_ibfk_2")
-
   @@index([room_id], map: "room_id")
   @@index([user_id], map: "user_id")
 }
@@ -123,7 +117,6 @@ model room {
   features        features[]
   reservation     reservation[]
   room_images     room_images[]
-
   @@index([accomodation_id], map: "accomodation_id")
 }
 
@@ -133,7 +126,6 @@ model room_images {
   image_url  String    @db.VarChar(500)
   created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
   room       room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "room_images_ibfk_1")
-
   @@index([room_id], map: "room_id")
 }
 
