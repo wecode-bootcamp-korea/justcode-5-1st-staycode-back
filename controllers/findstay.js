@@ -21,7 +21,10 @@ async function findstayController(req, res) {
 
     const cnt = req.query.cnt;
 
-    const list = await findstayInfo(condition, stay, priceRange, cnt);
+    const page = req.query.page;
+    console.log(page);
+
+    const list = await findstayInfo(condition, stay, priceRange, cnt, page);
 
     return res.status(201).json({ list }); // 5
   } catch (err) {
