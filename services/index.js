@@ -6,6 +6,3 @@
 // server.listen(8000, ()=>{
 //     console.log("server start : http://localhost:8000");
 // });
-
-
-

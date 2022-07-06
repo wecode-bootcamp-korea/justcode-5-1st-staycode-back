@@ -1,8 +1,7 @@
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 const express = require('express');
-
 
 const userRouter = require('./user');
 const findstayRouter = require('./findestay');
