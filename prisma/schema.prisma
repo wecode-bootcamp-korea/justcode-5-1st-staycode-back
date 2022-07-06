@@ -15,8 +15,8 @@ model accomodation {
   city                String                @db.VarChar(50)
   stay_type           String                @db.VarChar(50)
   theme               String                @db.VarChar(50)
-  created_at          DateTime              @default(now()) @db.Timestamp(0)
-  updated_at          DateTime              @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  created_at          DateTime?             @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
   accomodation_images accomodation_images[]
   event               event[]
   promotion           promotion[]
@@ -26,21 +26,19 @@ model accomodation {
 model accomodation_images {
   id              Int           @id @default(autoincrement())
   accomodation_id Int?
-  image_url       String        @db.VarChar(500)
-  created_at      DateTime      @default(now()) @db.Timestamp(0)
-  accomodation    accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "accomodation_images_ibfk_1")
-
+  image_url       String        @db.VarChar(300)
+  created_at      DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  accomodation    accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "accomodation_images_ibfk_1")
   @@index([accomodation_id], map: "accomodation_id")
 }
 
 model amenities {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   room_id    Int?
-  name       String   @db.VarChar(50)
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  updated_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
-  room       room?    @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "amenities_ibfk_1")
-
+  name       String    @db.VarChar(50)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  room       room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "amenities_ibfk_1")
   @@index([room_id], map: "room_id")
 }
 
@@ -50,23 +48,21 @@ model event {
   title                  String        @db.VarChar(50)
   content                String        @db.Text
   event_detail_image_url String?       @db.VarChar(300)
-  event_start            DateTime      @default(now()) @db.Timestamp(0)
-  event_end              DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
-  created_at             DateTime      @default(now()) @db.Timestamp(0)
-  updated_at             DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
-  accomodation           accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "event_ibfk_1")
-
+  event_start            DateTime      @db.Timestamp(0)
+  event_end              DateTime      @db.Timestamp(0)
+  created_at             DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at             DateTime?     @db.Timestamp(0)
+  accomodation           accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_ibfk_1")
   @@index([accomodation_id], map: "accomodation_id")
 }
 
 model features {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   room_id    Int?
-  name       String   @db.VarChar(50)
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  updated_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
-  room       room?    @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "features_ibfk_1")
-
+  name       String    @db.VarChar(50)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  room       room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "features_ibfk_1")
   @@index([room_id], map: "room_id")
 }
 
@@ -76,24 +72,30 @@ model promotion {
   title                String        @db.VarChar(50)
   content              String        @db.Text
   pro_detail_image_url String?       @db.VarChar(300)
-  pro_start            DateTime      @default(now()) @db.Timestamp(0)
-  pro_end              DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
-  created_at           DateTime      @default(now()) @db.Timestamp(0)
-  updated_at           DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
-  accomodation         accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "promotion_ibfk_1")
-
+  pro_start            DateTime      @db.Timestamp(0)
+  pro_end              DateTime      @db.Timestamp(0)
+  created_at           DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at           DateTime?     @db.Timestamp(0)
+  accomodation         accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "promotion_ibfk_1")
   @@index([accomodation_id], map: "accomodation_id")
 }
 
 model reservation {
-  id                Int      @id @default(autoincrement())
+  id                Int       @id @default(autoincrement())
   room_id           Int?
   user_id           Int?
-  reservation_start DateTime @default(now()) @db.Timestamp(0)
-  reservation_end   DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  reservation_start DateTime  @db.Timestamp(0)
+  reservation_end   DateTime  @db.Timestamp(0)
   price             Int
   guest             Int
-
+  special_requests  String?   @db.VarChar(200)
+  created_at        DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  booker            String    @db.VarChar(50)
+  phone             Int
+  email             String    @db.VarChar(200)
+  room              room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "reservation_ibfk_1")
+  users             users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "reservation_ibfk_2")
   @@index([room_id], map: "room_id")
   @@index([user_id], map: "user_id")
 }
@@ -108,24 +110,22 @@ model room {
   size            Float?        @db.Float
   check_in_time   String        @db.VarChar(50)
   check_out_time  String        @db.VarChar(50)
-  created_at      DateTime      @default(now()) @db.Timestamp(0)
-  updated_at      DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
-  accomodation    accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "room_ibfk_1")
+  created_at      DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at      DateTime?     @db.Timestamp(0)
+  accomodation    accomodation? @relation(fields: [accomodation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "room_ibfk_1")
   amenities       amenities[]
   features        features[]
   reservation     reservation[]
   room_images     room_images[]
-
   @@index([accomodation_id], map: "accomodation_id")
 }
 
 model room_images {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   room_id    Int?
-  image_url  String   @db.VarChar(500)
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  room       room?    @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "room_images_ibfk_1")
-
+  image_url  String    @db.VarChar(300)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  room       room?     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "room_images_ibfk_1")
   @@index([room_id], map: "room_id")
 }
 
@@ -135,7 +135,7 @@ model users {
   name        String        @db.VarChar(50)
   password    String        @db.VarChar(200)
   phone       String        @db.VarChar(50)
-  created_at  DateTime      @default(now()) @db.Timestamp(0)
-  updated_at  DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  created_at  DateTime?     @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at  DateTime?     @db.Timestamp(0)
   reservation reservation[]
 }

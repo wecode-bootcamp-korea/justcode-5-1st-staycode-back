@@ -25,7 +25,6 @@ app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
 
-
 //reservation get 캘린더에서 checkin 안되는날 찾기 위해서
 
 app.get('/reservation/:id', async (req, res) => {
