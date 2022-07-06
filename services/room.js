@@ -6,7 +6,7 @@ async function getRoomService(id) {
     try {
       const room = await prisma.$queryRaw`
       SELECT 
-      room.*
+      room.id,room.accomodation_id,room.name,room.content,room.price,room.max_guest,room.size,room.check_in_time,room.check_out_time
         ,  JSON_ARRAYAGG(
         JSON_OBJECT(
         "id", room_images.id,
