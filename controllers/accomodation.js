@@ -5,8 +5,7 @@ async function getAccomodationController(req, res) {
   try {
     const accomodation = await getAccomodationService(accomodationId);
     console.log(accomodation);
-    res.json({ data: accomodation });
-    return;
+    return res.status(201).json({ data: accomodation });
   } catch (err) {
     res.status(err.statusCode).json({ message: err.message });
     return;
