@@ -20,13 +20,19 @@ async function findstayController(req, res) {
     };
 
     const cnt = req.query.cnt;
-
     const page = req.query.page;
-    console.log(page);
+    const search = req.query.search;
 
-    const list = await findstayInfo(condition, stay, priceRange, cnt, page);
+    const data = await findstayInfo(
+      condition,
+      stay,
+      priceRange,
+      cnt,
+      page,
+      search
+    );
 
-    return res.status(201).json({ list }); // 5
+    return res.status(201).json({ data }); // 5
   } catch (err) {
     // 2
     console.log(err);

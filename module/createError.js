@@ -1,9 +1,8 @@
-function createError(errMessage, errCode){
-    const error = new Error(errMessage);
-    error.statusCode = errCode;
+function createError(errMessage, errCode) {
+  const error = new Error(errMessage);
+  error.statusCode = errCode;
 
-    return error;
-
+  return error;
 }
 
-module.exports = { createError};
+module.exports = { createError };

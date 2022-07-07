@@ -1,7 +1,7 @@
 const { Prisma } = require('@prisma/client');
 const prismaClient = require('./prisma-client');
 
-async function readStay(condition, stay, priceRange, cnt, page) {
+async function readStay(condition, stay, priceRange, cnt, page, search) {
   let stay_type_list = [];
   let theme_type_list = [];
   if (condition.stay_type) {
@@ -10,7 +10,7 @@ async function readStay(condition, stay, priceRange, cnt, page) {
   if (condition.theme) {
     theme_type_list = condition.theme.split(',');
   }
-  const list = Prisma.sql`(SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
+  const list_sql = Prisma.sql`SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(max_guest) AS guests, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
   JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
   ON accomodation.id = ig.accomodation_id ${
     condition.stay_type
@@ -23,14 +23,27 @@ async function readStay(condition, stay, priceRange, cnt, page) {
   }
   ${availableRoom(stay, priceRange, cnt)} HAVING 
     ${condition.city ? Prisma.sql`city = ${condition.city} AND` : Prisma.empty}
-     1)fl`;
-  console.log(page);
-  const page_list =
-    await prismaClient.$queryRawUnsafe`SELECT * FROM ${list} LIMIT 4 OFFSET ${
-      (page - 1) * 4
-    }`;
-  console.log(page_list);
-  return page_list;
+     1`;
+  if (search) {
+    const str = '%';
+    const search2 = str.concat(search, str);
+    const search_list = Prisma.sql`SELECT * FROM (${list_sql})fl WHERE stay_type LIKE ${search2} or city LIKE ${search2} or fl.name LIKE ${search2}`;
+    const all_list = await prismaClient.$queryRawUnsafe`${search_list}`;
+    const length = all_list.length;
+    const list =
+      await prismaClient.$queryRawUnsafe`SELECT * FROM (${search_list})sl LIMIT 4 OFFSET ${
+        (page - 1) * 4
+      }`;
+    return { length, list };
+  } else {
+    const all_list = await prismaClient.$queryRawUnsafe`${list_sql}`;
+    const length = all_list.length;
+    const list =
+      await prismaClient.$queryRawUnsafe`SELECT * FROM (${list_sql})fl LIMIT 4 OFFSET ${
+        (page - 1) * 4
+      }`;
+    return { length, list };
+  }
 }
 
 function availableRoom(stay, priceRange, cnt) {
