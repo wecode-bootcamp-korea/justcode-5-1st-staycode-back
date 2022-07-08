@@ -50,8 +50,15 @@ async function login(email, password) {
     });
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-
+  
     return token;
+      await prisma.$queryRaw`
+    select 
+        email
+    from users
+       where password=token;
+    `;
+    console.log("email: ",email)
   } else {
     const error = createError('LOGIN_FAIL', 400);
     throw error;
