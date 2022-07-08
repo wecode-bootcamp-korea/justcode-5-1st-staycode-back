@@ -22,6 +22,7 @@ async function findstayController(req, res) {
     const cnt = req.query.cnt;
     const page = req.query.page;
     const search = req.query.search;
+    const order = req.query.order;
 
     const data = await findstayInfo(
       condition,
@@ -29,7 +30,8 @@ async function findstayController(req, res) {
       priceRange,
       cnt,
       page,
-      search
+      search,
+      order
     );
 
     return res.status(201).json({ data }); // 5
