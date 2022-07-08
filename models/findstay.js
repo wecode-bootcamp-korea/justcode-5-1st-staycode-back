@@ -1,7 +1,7 @@
 const { Prisma } = require('@prisma/client');
 const prismaClient = require('./prisma-client');
 
-async function readStay(condition, stay, priceRange, cnt, page, search) {
+async function readStay(condition, stay, priceRange, cnt, page, search, order) {
   let stay_type_list = [];
   let theme_type_list = [];
   if (condition.stay_type) {
@@ -10,7 +10,7 @@ async function readStay(condition, stay, priceRange, cnt, page, search) {
   if (condition.theme) {
     theme_type_list = condition.theme.split(',');
   }
-  const list_sql = Prisma.sql`SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(max_guest) AS guests, JSON_ARRAYAGG(price) AS prices, images FROM accomodation
+  const list_sql = Prisma.sql`SELECT accomodation.id, accomodation.name, city, stay_type, theme, JSON_ARRAYAGG(max_guest) AS guests, JSON_ARRAYAGG(price) AS prices, MAX(price) as max_price, images FROM accomodation
   JOIN (SELECT accomodation_id, JSON_ARRAYAGG(image_url) AS images FROM accomodation_images GROUP BY accomodation_id)ig
   ON accomodation.id = ig.accomodation_id ${
     condition.stay_type
@@ -27,19 +27,25 @@ async function readStay(condition, stay, priceRange, cnt, page, search) {
   if (search) {
     const str = '%';
     const search2 = str.concat(search, str);
-    const search_list = Prisma.sql`SELECT * FROM (${list_sql})fl WHERE stay_type LIKE ${search2} or city LIKE ${search2} or fl.name LIKE ${search2}`;
-    const all_list = await prismaClient.$queryRawUnsafe`${search_list}`;
+    const search_list = Prisma.sql`SELECT * FROM (${list_sql})fl WHERE stay_type LIKE ${search2} or city LIKE ${search2} or fl.name LIKE ${search2} `;
+    const order_list = Prisma.sql`${search_list} ${
+      order === 'high' ? Prisma.sql`ORDER BY max_price DESC` : Prisma.empty
+    } ${order === 'low' ? Prisma.sql`ORDER BY max_price ASC` : Prisma.empty}`;
+    const all_list = await prismaClient.$queryRawUnsafe`${order_list}`;
     const length = all_list.length;
     const list =
-      await prismaClient.$queryRawUnsafe`SELECT * FROM (${search_list})sl LIMIT 4 OFFSET ${
+      await prismaClient.$queryRawUnsafe`SELECT * FROM (${order_list})sl LIMIT 4 OFFSET ${
         (page - 1) * 4
       }`;
     return { length, list };
   } else {
-    const all_list = await prismaClient.$queryRawUnsafe`${list_sql}`;
+    const order_list = Prisma.sql`${list_sql} ${
+      order === 'high' ? Prisma.sql`ORDER BY max_price DESC` : Prisma.empty
+    } ${order === 'low' ? Prisma.sql`ORDER BY max_price ASC` : Prisma.empty}`;
+    const all_list = await prismaClient.$queryRawUnsafe`${order_list}`;
     const length = all_list.length;
     const list =
-      await prismaClient.$queryRawUnsafe`SELECT * FROM (${list_sql})fl LIMIT 4 OFFSET ${
+      await prismaClient.$queryRawUnsafe`SELECT * FROM (${order_list})fl LIMIT 4 OFFSET ${
         (page - 1) * 4
       }`;
     return { length, list };
@@ -70,32 +76,5 @@ function availableRoom(stay, priceRange, cnt) {
   and room.max_guest >= ${cnt})ar on accomodation.id = ar.accomodation_id
   group by accomodation.id`;
 }
-
-/*return Prisma.sql`JOIN (select room.id, room.accomodation_id, room.price, room.max_guest from room 
-  left join reservation on room.id = reservation.room_id 
-  where (reservation.reservation_start not between ${stay.check_in} and ${stay.check_out}
-  and reservation.reservation_end not between ${stay.check_in} and ${stay.check_out}
-  or reservation.reservation_start is null and reservation.reservation_end is null)
-  and room.price between ${priceRange.min_price} and ${priceRange.max_price}
-  and room.max_guest >= ${cnt})ar on accomodation.id = ar.accomodation_id
-  group by accomodation.id`;*/
-
-/*function filterByHaving(condition) {
-  const filter = [];
-  if (condition.stay_type) {
-    filter.push(`stay_type = '${condition.stay_type}'`);
-  }
-  if (condition.city) {
-    filter.push(`city = '${condition.city}'`);
-  }
-  if (condition.theme) {
-    filter.push(`theme = '${condition.theme}'`);
-  }
-  if (filter.length) {
-    return Prisma.query`having ${filter.join(' and ')}`;
-  } else {
-    return Prisma.empty;
-  }
-}*/
 
 module.exports = { readStay };
